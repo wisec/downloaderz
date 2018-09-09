@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <title>Downloaderz</title>
+  </head>
+  <body>
+    <input type="text" id="url" name="url"> <button id="#getvideo_button">Get Video</button> <button id="reset_button">Reset</button>
+    <h3 id="msg"></h3>
+    <h3 id="log"></h3>
+
+    <div id="foundLink"></div>
+
+    <script type="text/javascript">
+        function writeLog(str,selector) {
+          selector = selector || '#msg'
+          document.querySelector(selector).innerText = str;
+        }
+
+        function writeLink(url) {
+          var a = document.createElement('a');
+          a.href=url;
+          a.innerText = url;
+          a.target = 'new';
+          a.setAttribute("rel","noreferrer");
+
+          document.querySelector('#foundLink').appendChild(a) ;
+        }
+
+        function executeRequest(method, url, onSuccess) {
+          var xhr = new XMLHttpRequest();
+          xhr.open(method, url);
+          xhr.addEventListener('readystatechange', function() {
+
+            // Only run if the request is complete
+            if (xhr.readyState !== 4) return;
+
+            // Process our return data
+            if (xhr.status >= 200 && xhr.status < 300) {
+              // What do when the request is successful
+              console.log('success', JSON.parse(xhr.responseText));
+              onSuccess.call(xhr);
+            } else {
+              // What to do when the request has failed
+              console.log('error', xhr);
+            }
+
+          });
+          xhr.send();
+        }
+
+        var url_input_elem = document.querySelector("#url");
+
+        var reset_butt = document.querySelector("#reset_button");
+        reset_button.addEventListener('click',function (){
+          url_input_elem.value = '';
+          writeLog('');
+          writeLog('','#foundLink');
+        });
+        
+        var video_butt = document.querySelector("#getvideo_button");
+
+        video_butt.addEventListener('click', (e) => {
+          
+          console.log(url_input_elem.value);
+          try {
+           var urlInput = encodeURIComponent(url_input_elem.value);
+          } catch (exc) {
+            urlInput = escape(url_input_elem.value);
+          }
+          executeRequest("GET", '/findurl?url='+urlInput, function() {
+
+            window.pollerRef = setInterval(function (){
+              executeRequest("GET", "/isready?url=" + urlInput, function() {
+                var response = JSON.parse(this.responseText);
+                if(typeof response.found==='string'){
+                  clearInterval(window.pollerRef);
+                  writeLink(response.found);
+                }else{
+                  writeLog("Retrieving:"+urlInput);
+                  writeLog("Please wait, link not Ready Yet "+(new Date()).toLocaleTimeString(),'#log');
+                }
+                console.log("got",JSON.parse(this.responseText));
+
+                
+              });              
+            },1000);
+          });
+
+        });
+    </script>
+  </body>
+</html>

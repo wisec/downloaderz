@@ -1,0 +1,19 @@
+{
+  "name": "downloaderz",
+  "version": "1.0.0",
+  "description": "Downloaderz",
+  "main": "index.js",
+  "dependencies": {
+    "chrome-launcher": "^0.10.2",
+    "chrome-remote-interface": "^0.26.1",
+    "puppeteer": "^1.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-dist": "mkdir dist;rsync -avz index.js openload.js package.json puppeteer_wrapper.js README.md repl.js server dist/  --exclude 'node_modules'",
+    "remote-sync": "rsync -avz dist/ -e ssh 192.168.1.17:./dist/"
+  },
+  "author": "Stefano Di Paola",
+  "license": "ISC"
+}
