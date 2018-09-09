@@ -3,7 +3,9 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const fs = require('fs');
 const child_process = require('child_process');
-
+var urlparse = require("url").parse;
+  
+  
 const app = express()
 
 const out = fs.openSync('./out.log', 'a');
@@ -39,10 +41,17 @@ function getFileNameFromURL(url) {
 // param /findurl?url=
 app.get('/findurl', (request, response) => {
   var reqUrl = request.query.url;
+
   var userAgent = request.headers['user-agent'];
   console.log("FindURL: ",request.query.url,getFileNameFromURL(reqUrl));
+  var host = urlparse(reqUrl).host;
+  var host_script = {
+    'openload.co': "./openload.js",
+    'vidcloud.co': "./vidcloud.js"
+  };
+  console.log(host,host_script)
   
-  const sub_proc = child_process.spawn("node", ["index.js", "--script", "./openload.js", "--url", reqUrl, "--agent", userAgent, "--save", getFileNameFromURL(reqUrl)], {
+  const sub_proc = child_process.spawn("node", ["index.js", "--script", host_script[host], "--url", reqUrl, "--agent", userAgent, "--save", getFileNameFromURL(reqUrl)], {
   detached: true, 
   stdio: [ 'ignore', out, err ],
   cwd: __dirname+"/../"
