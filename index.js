@@ -1,10 +1,14 @@
 const bc_puppeteer = require('./puppeteer_wrapper.js');
 const fs = require('fs');
 
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+
+
 var args = process.argv.slice(2);
 
 
-var opts = "help:script::show:agent::url::save:".split(':');
+var opts = "help:script::show:agent::url::save::binary:jsdom".split(':');
 
 function getArg(arg, hasoption) {
   var idx = args.indexOf("--"+arg);
@@ -31,7 +35,7 @@ opts.forEach(opt => {
 if (options.help || !options.script || !options.url) {
   console.error(`Usage:
 node ${process.argv[1]} path/to/script.js
-Example: node ${process.argv[1]} scripts/openload.js --url url --show --agent "user agent string" [--save fileurl]`);
+Example: node ${process.argv[1]} --script scripts/openload.js [--jsdom] --url url --show --agent "user agent string" [--save fileurl] [--binary /path/to/chrome]`);
   process.exit();
 } else {
   var script_content = fs.readFileSync(options.script) + '';
@@ -42,12 +46,14 @@ var show = options.show;
 
 (async () => {
 
-  const browser = await bc_puppeteer.launch({show:show,userAgent:userAgent});
-  const page = await browser.newPage();
+  if(!options.jsdom){
+    const browser = await bc_puppeteer.launch({show:show,userAgent:userAgent},{'executablePath':options.binary});
+    const page = await browser.newPage();
 
-  await eval("(async ()=> {\n" + script_content + ";\n})()");
-// script example:
-//await page.goto('http://www.domxss.com/domxss/01_Basics/00_simple_noHead.html?13133862'
-//await page.evaluate('_rw_.fuzzPage();');
-//await browser.close();
+    await eval("(async ()=> {\n" + script_content + ";\n})()");
+
+  }else{
+    var  dom = await JSDOM.fromURL(options.url, {});
+    await eval("(async ()=> {\n" + script_content + ";\n})()");
+  }
 })();
