@@ -4,15 +4,9 @@ var path = require('path');
 //const bcutils = require('./bcdetect-utils.js');
 
 async function createInstance(config, puppeteer_options, chrome_args) {
-  //const baseDir = config.bcdetect_install_dir;
-  //const homeDir = config.bcdetect_home_dir;
-  //var themeExtension = path.join(baseDir, 'libs', 'chrome-theme-BCDetect');
-  //var chromeExtension = path.join(baseDir, 'libs', 'chromeExtension');
   var custom_args = ["--no-first-run", "--no-default-browser-check", "--disable-hang-monitor", "--disable-background-networking",
     "--disable-client-side-phishing-detection",
-    //  "--allow-insecure-localhost",
     "--test-type",
-    // "--disable-xss-auditor", '--load-extension=' + chromeExtension + ',' + themeExtension, "--user-data-dir=" + homeDir,
     "--ignore-certificate-errors"
   ];
 
