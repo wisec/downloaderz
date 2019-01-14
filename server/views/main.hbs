@@ -3,7 +3,7 @@
     <title>Downloaderz</title>
   </head>
   <body>
-    <input type="text" id="url" name="url"> <button id="getvideo_button">Get Video</button> <button id="reset_button">Reset</button>
+    <input type="text" id="url" name="url" value="{{reqUrl}}"> <button id="getvideo_button">Get Video</button> <button id="reset_button">Reset</button>
     <h3 id="msg"></h3>
     <h3 id="log"></h3>
 
@@ -55,17 +55,29 @@
           writeLog('');
           writeLog('','#log');
           writeLog('','#foundLink');
+          clearInterval(window.pollerRef);
         });
         
         var video_butt = document.querySelector("#getvideo_button");
 
         video_butt.addEventListener('click', (e) => {
-          
+          var urlInput = url_input_elem.value.trim();
           console.log(url_input_elem.value);
+          if(!urlInput){
+            return;
+          }
+          try{
+            var testURL = new URL(urlInput);
+          }catch(exc){
+            // Not a valid URL!
+            writeLog("Error Retrieving:"+urlInput);
+            writeLog("Not a Valid URL!","#log");
+            return ;
+          }
           try {
-           var urlInput = encodeURIComponent(url_input_elem.value);
+           var urlInput = encodeURIComponent(urlInput);
           } catch (exc) {
-            urlInput = escape(url_input_elem.value);
+            urlInput = escape(urlInput);
           }
           executeRequest("GET", '/findurl?url='+urlInput, function() {
 
